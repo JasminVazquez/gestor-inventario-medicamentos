@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { CategoriasService } from '../service/Categorias.service';
 
-// GET /categorias - Obtener todas las categorias
 export const getAllCategorias = async (req: Request, res: Response): Promise<void> => {
     try {
         const categorias = await CategoriasService.getAllCategorias();
@@ -19,7 +18,6 @@ export const getAllCategorias = async (req: Request, res: Response): Promise<voi
     }
 };
 
-// POST /categorias - Crear una nueva categoria
 export const createCategorias = async (req: Request, res: Response): Promise<void> => {
     try {
         const categoria = await CategoriasService.createCategoria(req.body);

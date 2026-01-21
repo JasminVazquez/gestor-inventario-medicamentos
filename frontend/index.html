@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Gestor de Inventario - Jasmin</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-light">
+    <div class="container mt-5">
+      <h1>Inventario de Medicamentos</h1>
+
+      <div class="btn-group my-4" role="group">
+        <button id="btn-vencidos" class="btn btn-danger">Vencidos</button>
+        <button id="btn-proximos" class="btn btn-warning">
+          Próximos a vencer
+        </button>
+        <button id="btn-buenos" class="btn btn-success">Estado Óptimo</button>
+      </div>
+
+      <table class="table table-hover bg-white shadow-sm">
+        <thead class="table-dark">
+          <tr>
+            <th>Nombre</th>
+            <th>Categoría</th>
+            <th>Expiración</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-medicamentos"></tbody>
+      </table>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>

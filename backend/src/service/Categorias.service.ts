@@ -2,8 +2,6 @@ import { CategoriasRepository } from "../repository/Categorias.repository";
 import { ICategorias } from "../interface/Categorias.interface";
 
 export const CategoriasService = {
-    // GET all categorias
-    // CAMBIO: Se usa ":" en lugar de "=" dentro del objeto
     getAllCategorias: async (): Promise<ICategorias[]> => {
         try {
             const categorias = await CategoriasRepository.findAll();
@@ -18,11 +16,9 @@ export const CategoriasService = {
         }
     },
 
-    // Create a new categoria
-    // CAMBIO: Se usa ":" en lugar de "=" dentro del objeto
+   
     createCategoria: async (categoriaData: ICategorias): Promise<ICategorias> => {
         try {
-            // Validar datos de la categoria
             if (!categoriaData.nombre) {
                 throw new Error('Datos incompletos para crear la categoria  .');
             }

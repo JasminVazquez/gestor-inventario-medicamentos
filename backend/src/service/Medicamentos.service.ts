@@ -15,7 +15,9 @@ export const MedicamentosService = {
       throw new Error(`Error al obtener medicamentos: ${message}`);
     }
   },
-  createMedicamento: async (medicamentoData: IMedicamento,): Promise<IMedicamento> => {
+  createMedicamento: async (
+    medicamentoData: IMedicamento,
+  ): Promise<IMedicamento> => {
     try {
       if (
         !medicamentoData.nombre ||
@@ -41,7 +43,7 @@ export const MedicamentosService = {
       throw new Error(`Error al eliminar medicamento: ${error.message}`);
     }
   },
-  findByName: async (nombre: string ): Promise<IMedicamento | null> => {
+  findByName: async (nombre: string): Promise<IMedicamento | null> => {
     try {
       const medicamento = await MedicamentosRepository.findByName(nombre);
       return medicamento;
@@ -50,14 +52,34 @@ export const MedicamentosService = {
       throw new Error(`Error al buscar medicamento por nombre: ${message}`);
     }
   },
+  findByCategoria: async (
+    categoria_id: number,
+  ): Promise<IMedicamento[] | null> => {
+    try {
+      const medicamentos =
+        await MedicamentosRepository.findByCategoria(categoria_id);
+      return medicamentos;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Error al buscar medicamentos por categoría: ${message}`);
+    }
+  },
+  findByStatus: async (
+    status: "vencido" | "proximo" | "bueno",
+  ): Promise<IMedicamento[]> => {
+    try {
+      const medicamentos = await MedicamentosRepository.findByStatus(status);
+      return medicamentos;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Error al buscar medicamentos por estado: ${message}`);
+    }
+  },
+  
   updateMedicamento: async (id: number, datos: Partial<IMedicamento>) => {
-    // Solo validamos que el ID esté presente
     if (!id) {
       throw new Error("El ID es necesario para actualizar.");
     }
-
-    // ELIMINA EL IF QUE CHECA (nombre, cantidad, etc.) AQUÍ
-
     try {
       const resultado = await MedicamentosRepository.update(id, datos);
       return resultado;
