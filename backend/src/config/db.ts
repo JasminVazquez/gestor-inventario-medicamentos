@@ -9,8 +9,3 @@ export const pool = new Pool({
     rejectUnauthorized: false,
   },
 });
-
-pool.on("error", (err) => {
-  console.error("Error inesperado en el cliente de PostgreSQL", err);
-  process.exit(-1);
-});
