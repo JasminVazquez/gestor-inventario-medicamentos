@@ -1,0 +1,33 @@
+.btn-vivid {
+  width: 32px;
+  height: 34px;
+  padding: 0;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  color: white !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-vivid i {
+  font-size: 0.8em;
+}
+
+.btn-vivid:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.3);
+}
+.btn-vivid-edit {
+  background: linear-gradient(135deg, #007bff, #00c6ff);
+}
+
+.btn-vivid-delete {
+  background: linear-gradient(135deg, #ff416c, #ff4b2b);
+}
+.btn-vivid:hover i {
+  transform: scale(1.2);
+}
