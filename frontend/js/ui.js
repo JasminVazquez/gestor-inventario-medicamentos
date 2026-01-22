@@ -95,6 +95,9 @@ $(document).ready(function () {
   $("#formNuevoMedicamento").on("submit", function (e) {
     e.preventDefault();
 
+    const cantidadVal = $("#nuevoCantidad").val();
+    const cantidad = parseInt(cantidadVal);
+
     if (cantidad < 0) {
       Swal.fire({
         icon: "error",
