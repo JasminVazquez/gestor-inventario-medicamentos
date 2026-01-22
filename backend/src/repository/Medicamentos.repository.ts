@@ -3,54 +3,129 @@ import { pool } from "../config/db";
 
 export const MedicamentosRepository = {
   findAll: async (): Promise<IMedicamento[]> => {
-    const query = "SELECT * FROM medicamentos ORDER BY id ASC";
+    const query = `
+      SELECT m.*, c.nombre AS categoria_nombre 
+      FROM medicamentos m
+      LEFT JOIN categorias c ON m.categoria_id = c.id
+      ORDER BY m.id ASC`;
     const { rows } = await pool.query(query);
     return rows;
   },
-  findByName: async (nombre: string): Promise<IMedicamento | null> => {
-    const query =
-      "SELECT * FROM medicamentos WHERE nombre ILIKE $1 AND activo = true;";
-    const values = [`%${nombre}%` || nombre];
+  findByFiltros: async (
+    categoria_id?: number,
+    estado?: string,
+    nombre?: string,
+  ): Promise<IMedicamento[]> => {
+    let query = `
+    SELECT m.*, c.nombre AS categoria_nombre 
+    FROM medicamentos m
+    LEFT JOIN categorias c ON m.categoria_id = c.id
+    WHERE m.activo = true`;
+
+    const values: any[] = [];
+    const hoy = new Date().toISOString().split("T")[0];
+
+    if (nombre && nombre.trim() !== "") {
+      values.push(`${nombre.trim()}%`);
+      query += ` AND m.nombre ILIKE $${values.length}`;
+    }
+
+    if (categoria_id && !isNaN(categoria_id)) {
+      values.push(categoria_id);
+      query += ` AND m.categoria_id = $${values.length}`;
+    }
+
+    if (estado === "vencido") {
+      values.push(hoy);
+      query += ` AND m.fecha_expiracion < $${values.length}`;
+    } else if (estado === "proximo") {
+      const d = new Date();
+      d.setDate(d.getDate() + 30);
+      const dentroDe30Dias = d.toISOString().split("T")[0];
+
+      values.push(hoy, dentroDe30Dias);
+      query += ` AND m.fecha_expiracion BETWEEN $${values.length - 1} AND $${values.length}`;
+    } else if (estado === "bueno" || estado === "vigente") {
+      values.push(hoy);
+      query += ` AND m.fecha_expiracion > $${values.length}`;
+    }
+
+    query += " ORDER BY m.nombre ASC";
+
+    const { rows } = await pool.query(query, values);
+    return rows;
+  },
+  findByCategoria: async (categoria_id: number): Promise<IMedicamento[]> => {
+    const query = `
+      SELECT m.*, c.nombre AS categoria_nombre
+      FROM medicamentos m
+      LEFT JOIN categorias c ON m.categoria_id = c.id
+      WHERE m.categoria_id = $1 AND m.activo = true;`;
+    const values = [categoria_id];
+    const { rows } = await pool.query(query, values);
+    return rows;
+  },
+
+  findByCaducidad: async (status: string): Promise<IMedicamento[]> => {
+    let query = `
+      SELECT m.*, c.nombre AS categoria_nombre
+      FROM medicamentos m
+      LEFT JOIN categorias c ON m.categoria_id = c.id
+      WHERE m.activo = true`;
+
+    const values: any[] = [];
+    const currentDate = new Date();
+
+    // 2. Lógica de filtrado según el parámetro de la URL
+    // Ajustamos los nombres ("vencido", "proximo") para que coincidan con tu frontend
+    if (status === "vencido" || status === "caducados") {
+      query += ` AND m.fecha_expiracion < $1`;
+      values.push(currentDate);
+    } else if (status === "proximo" || status === "por_caducar") {
+      const next30Days = new Date();
+      next30Days.setDate(currentDate.getDate() + 30);
+
+      query += ` AND m.fecha_expiracion BETWEEN $1 AND $2`;
+      values.push(currentDate, next30Days);
+    } else if (status === "bueno" || status === "vigentes") {
+      query += ` AND m.fecha_expiracion > $1`;
+      values.push(currentDate);
+    }
+
+    query += " ORDER BY m.fecha_expiracion ASC";
+
+    const { rows } = await pool.query(query, values);
+    return rows;
+  },
+
+  findById: async (id: number): Promise<IMedicamento | null> => {
+    const query = `
+      SELECT m.*, c.nombre AS categoria_nombre 
+      FROM medicamentos m
+      LEFT JOIN categorias c ON m.categoria_id = c.id
+      WHERE m.id = $1;`;
+    const values = [id];
     const { rows } = await pool.query(query, values);
     return rows[0] || null;
   },
-  findByCategoria: async (
-    categoria_id: number,
-  ): Promise<IMedicamento[] | null> => {
-    const query =
-      "SELECT * FROM medicamentos WHERE categoria_id = $1 AND activo = true;";
-    const values = [categoria_id];
-    const { rows } = await pool.query(query, values);
-    return rows || null;
-  },
 
-  findByStatus: async (
-    status: "vencido" | "proximo" | "bueno",
-  ): Promise<IMedicamento[]> => {
-    let query = "SELECT * FROM medicamentos WHERE activo = true";
-
-    if (status === "vencido") {
-      query += " AND fecha_expiracion < CURRENT_DATE";
-    } else if (status === "proximo") {
-      query +=
-        " AND fecha_expiracion BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '30 days'";
-    } else if (status === "bueno") {
-      query += " AND fecha_expiracion > CURRENT_DATE + INTERVAL '30 days'";
-    }
-
-    query += " ORDER BY fecha_expiracion ASC";
-    const { rows } = await pool.query(query);
-    return rows;
-  },
   create: async (medicamento: IMedicamento): Promise<IMedicamento> => {
     const { nombre, categoria_id, cantidad, fecha_expiracion, activo } =
       medicamento;
+
     const query = `
-            INSERT INTO medicamentos (nombre, categoria_id, cantidad, fecha_expiracion, activo)
-            VALUES ($1, $2, $3, $4, $5)
-            RETURNING *;
-        `;
-    const values = [nombre, categoria_id, cantidad, fecha_expiracion, activo];
+      INSERT INTO medicamentos (nombre, categoria_id, cantidad, fecha_expiracion, activo)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *;
+  `;
+    const values = [
+      nombre,
+      categoria_id,
+      cantidad,
+      fecha_expiracion,
+      activo ?? true,
+    ];
+
     const { rows } = await pool.query(query, values);
     return rows[0];
   },

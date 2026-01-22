@@ -43,39 +43,16 @@ export const MedicamentosService = {
       throw new Error(`Error al eliminar medicamento: ${error.message}`);
     }
   },
-  findByName: async (nombre: string): Promise<IMedicamento | null> => {
+  findById: async (id: number): Promise<IMedicamento | null> => {
     try {
-      const medicamento = await MedicamentosRepository.findByName(nombre);
+      const medicamento = await MedicamentosRepository.findById(id);
       return medicamento;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      throw new Error(`Error al buscar medicamento por nombre: ${message}`);
+      throw new Error(`Error al buscar medicamento por ID: ${message}`);
     }
   },
-  findByCategoria: async (
-    categoria_id: number,
-  ): Promise<IMedicamento[] | null> => {
-    try {
-      const medicamentos =
-        await MedicamentosRepository.findByCategoria(categoria_id);
-      return medicamentos;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      throw new Error(`Error al buscar medicamentos por categoría: ${message}`);
-    }
-  },
-  findByStatus: async (
-    status: "vencido" | "proximo" | "bueno",
-  ): Promise<IMedicamento[]> => {
-    try {
-      const medicamentos = await MedicamentosRepository.findByStatus(status);
-      return medicamentos;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      throw new Error(`Error al buscar medicamentos por estado: ${message}`);
-    }
-  },
-  
+
   updateMedicamento: async (id: number, datos: Partial<IMedicamento>) => {
     if (!id) {
       throw new Error("El ID es necesario para actualizar.");
@@ -85,6 +62,23 @@ export const MedicamentosService = {
       return resultado;
     } catch (error: any) {
       throw new Error(`Error al actualizar medicamento: ${error.message}`);
+    }
+  },
+  findByFiltros: async (filtros: {
+    nombre?: string;
+    categoria_id?: number;
+    statusCaducidad?: string;
+  }): Promise<IMedicamento[]> => {
+    try {
+      const medicamentos = await MedicamentosRepository.findByFiltros(
+        filtros.categoria_id,
+        filtros.statusCaducidad,
+        filtros.nombre,
+      );
+      return medicamentos;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Error al buscar medicamentos por filtros: ${message}`);
     }
   },
 };

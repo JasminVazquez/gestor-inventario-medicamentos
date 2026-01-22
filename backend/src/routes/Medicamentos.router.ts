@@ -4,11 +4,12 @@ import * as MedicamentosController from "../controller/Medicamentos.controller";
 const router = Router();
 
 router.get("/", MedicamentosController.getAllMedicamentos);
-router.get("/:nombre", MedicamentosController.findByName);
-router.get("/categoria/:categoria_id", MedicamentosController.findByCategoria);
-router.get("/status/:status", MedicamentosController.findByStatus);
+router.get("/buscar", MedicamentosController.getFiltrados);
+
+router.get("/:id", MedicamentosController.findById);
+
 router.post("/", MedicamentosController.createMedicamento);
-router.patch("/:id", MedicamentosController.updateMedicamento);
-router.delete("/:id", MedicamentosController.deleteMedicamento);
+router.patch("/id/:id", MedicamentosController.updateMedicamento);
+router.delete("/id/:id", MedicamentosController.deleteMedicamento);
 
 export default router;

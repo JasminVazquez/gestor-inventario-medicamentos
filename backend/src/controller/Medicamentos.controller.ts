@@ -20,19 +20,16 @@ export const getAllMedicamentos = async (
     });
   }
 };
-export const findByName = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const findById = async (req: Request, res: Response): Promise<void> => {
   try {
-    const nombre = req.params.nombre as string;
-    if (!nombre) {
+    const id = Number(req.params.id);
+    if (isNaN(id)) {
       res.status(400).json({
-        mensaje: "El nombre del medicamento es necesario para la búsqueda.",
+        mensaje: "El ID del medicamento es necesario para la búsqueda.",
       });
-      return; 
+      return;
     }
-    const medicamento = await MedicamentosService.findByName(nombre);
+    const medicamento = await MedicamentosService.findById(id);
     if (medicamento) {
       res.status(200).json({
         success: true,
@@ -53,74 +50,8 @@ export const findByName = async (
     });
   }
 };
-export const findByStatus = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
-  try {
-    const status = req.params.status as "vencido" | "proximo" | "bueno";
-    if (!status) {
-      res.status(400).json({
-        mensaje: "El estado del medicamento es necesario para la búsqueda.",
-      });
-      return;
-    }
-    const medicamentos = await MedicamentosService.findByStatus(status);
-    if (medicamentos && medicamentos.length > 0) {
-      res.status(200).json({
-        success: true,
-        data: medicamentos,
-        message: "Medicamentos encontrados",
-      });
-    } else {
-      res.status(404).json({
-        success: false,
-        error: "No se encontraron medicamentos para este estado",
-      });
-    }
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    res.status(500).json({
-      success: false,
-      error: `Error en el controlador: ${message}`,
-    });
-  }
-};
 
-export const findByCategoria = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
-  try {
-    const categoria_id = Number(req.params.categoria_id);
-    if (isNaN(categoria_id)) {
-      res.status(400).json({
-        mensaje: "El ID de la categoría es necesario para la búsqueda.",
-      });
-      return;
-    }
-    const medicamentos =
-      await MedicamentosService.findByCategoria(categoria_id);
-    if (medicamentos && medicamentos.length > 0) {
-      res.status(200).json({
-        success: true,
-        data: medicamentos,
-        message: "Medicamentos encontrados",
-      });
-    } else {
-      res.status(404).json({
-        success: false,
-        error: "No se encontraron medicamentos para esta categoría",
-      });
-    }
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    res.status(500).json({
-      success: false,
-      error: `Error en el controlador: ${message}`,
-    });
-  }
-};
+
 export const createMedicamento = async (
   req: Request,
   res: Response,
@@ -135,8 +66,8 @@ export const createMedicamento = async (
   } catch (error: any) {
     console.error({
       mensaje: error.message,
-      stack: error.stack, 
-      detalle: error.detail, 
+      stack: error.stack,
+      detalle: error.detail,
     });
 
     res.status(500).json({
@@ -164,8 +95,8 @@ export const updateMedicamento = async (
   } catch (error: any) {
     console.error({
       mensaje: error.message,
-      stack: error.stack, 
-      detalle: error.detail, 
+      stack: error.stack,
+      detalle: error.detail,
     });
 
     res.status(500).json({
@@ -195,3 +126,28 @@ export const deleteMedicamento = async (
     });
   }
 };
+
+export const getFiltrados = async (req: Request, res: Response) => {
+  try {
+    const { nombre, categoria_id, statusCaducidad } = req.query;
+
+    const filtros = {
+      nombre: nombre ? (nombre as string) : undefined,
+      categoria_id:
+        categoria_id && categoria_id !== "" ? Number(categoria_id) : undefined,
+      statusCaducidad: statusCaducidad
+        ? (statusCaducidad as string)
+        : undefined,
+    };
+
+    const medicamentos = await MedicamentosService.findByFiltros(filtros);
+    res.json({ success: true, data: medicamentos });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      mensaje: "Petición incorrecta",
+      error: error.message,
+    });
+  }
+};
+
