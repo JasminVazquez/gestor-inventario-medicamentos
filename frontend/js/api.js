@@ -1,6 +1,4 @@
-const BASE_URL =
-  "https://ubiquitous-enigma-xqpw5j5656j297qq-3000.app.github.dev/api";
-
+const BASE_URL = "/api";
 const MedicamentosAPI = {
   obtenerTodos: function (callbackSuccess, callbackError) {
     $.ajax({
